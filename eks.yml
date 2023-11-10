@@ -1,73 +1,69 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-app
+  name: pod1-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: todo-app
+      app: pod1
   template:
     metadata:
       labels:
-        app: todo-app
+        app: pod1
     spec:
       containers:
-      - name: todo-app
-        image: public.ecr.aws/r7w6f2d8/todo-app:latest
-        ports:
-        - containerPort: 5000
+        - name: mongo
+          image: mongo
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-app-service
+  name: pod1-service
 spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 5000
   selector:
-    app: todo-app
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongodb-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+    app: pod1
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: my-flask-service-deployment
 spec:
-  replicas: 3
+  replicas: 6
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
   selector:
     matchLabels:
-      app: mongodb
+      app: my-flask-service
   template:
     metadata:
       labels:
-        app: mongodb
+        app: my-flask-service
     spec:
       containers:
-      - name: mongodb
-        image: mongo
-        ports:
-        - containerPort: 27017
+        - name: todo
+          image: 475338120318.dkr.ecr.us-west-2.amazonaws.com/todo-flask-app:latest
+          env:
+            - name: MONGO_HOST
+              value: "pod1-service"  
+            - name: MONGO_PORT
+              value: "27017"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb-service
+  name: my-flask-service
 spec:
-  ports:
-  - port: 27017
-    targetPort: 27017
   selector:
-    app: mongodb
+    app: my-flask-service
+  ports:
+    - protocol: TCP
+      port: 56068
+      targetPort: 5000
+  type: LoadBalancer

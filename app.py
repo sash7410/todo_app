@@ -125,5 +125,3 @@ if __name__ == "__main__":
 	debug = False if env == 'production' else True
 
 	app.run(host='0.0.0.0', debug=debug)
-	aws eks --region us-west-2 update-kubeconfig --name amazon-cluster
-Step 16 - kubectl apply -f eks.yml

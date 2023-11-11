@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request,jsonify,redirect,url_for # For flask implementation
+from flask import Flask, render_template,request,jsonify,redirect,url_for,abort # For flask implementation
 from pymongo import MongoClient # Database connector
 from bson.objectid import ObjectId # For ObjectId to work
 from bson.errors import InvalidId # For catching InvalidId exception for ObjectId
@@ -23,15 +23,24 @@ def redirect_url():
 
 @app.route('/health')
 def health_check():
-    return "OK", 200
+    # Check for a 'fail' environment variable to simulate failure
+    if os.environ.get('LIVENESS_PROBE_FAIL') == 'true':
+        # This will cause the liveness probe to fail
+        abort(500)
+    else:
+        # Liveness probe success
+        return jsonify({"status": "ok"}), 200
 
+# Readiness probe endpoint
 @app.route('/ready')
 def ready():
-    if is_app_ready:
-        return jsonify({"status": "ready"}), 200
+    # Check for a 'fail' environment variable to simulate failure
+    if os.environ.get('READINESS_PROBE_FAIL') == 'true':
+        # This will cause the readiness probe to fail
+        abort(500)
     else:
-        # Return a 500 Internal Server Error if the app is not ready.
-        return jsonify({"status": "not ready"}), 500
+        # Readiness probe success
+        return jsonify({"status": "ok"}), 200
 
 @app.route("/list")
 def lists ():

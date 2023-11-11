@@ -7,6 +7,6 @@ spec:
     app: my-flask-service
   ports:
     - protocol: TCP
-      port: 56068
+      port: 56011
       targetPort: 5000
   type: LoadBalancer

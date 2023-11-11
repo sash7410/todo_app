@@ -7,7 +7,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: my-flask-service
@@ -17,10 +18,23 @@ spec:
         app: my-flask-service
     spec:
       containers:
-        - name: todo
-          image: public.ecr.aws/r7w6f2d8/todo-app:latest
-          env:
-            - name: MONGO_HOST
-              value: "pod1-service"  
-            - name: MONGO_PORT
-              value: "27017"
+      - name: todo
+        image: 475338120318.dkr.ecr.us-west-2.amazonaws.com/todo-flask-app:v4
+        env:
+          - name: MONGO_HOST
+            value: "pod1-service"  
+          - name: MONGO_PORT
+            value: "27017"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          

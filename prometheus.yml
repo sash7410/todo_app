@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: kube-prometheus
+  name: probe-alerts
+spec:
+  groups:
+  - name: probe-alerts
+    rules:
+    - alert: HighFailureRate
+      expr: increase(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}[10m]) > 5
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: High failure rate of liveness/readiness probes

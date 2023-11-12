@@ -12,10 +12,10 @@ spec:
         app: my-flask-rc-app
     spec:
       containers:
-      - name: flask-app
-        image: 475338120318.dkr.ecr.us-west-2.amazonaws.com/todo-flask-app:v3
-        env:
-          - name: MONGO_HOST
-            value: "pod1-service"
-          - name: MONGO_PORT
-            value: "27017"
+        - name: flask-app
+          image: 475338120318.dkr.ecr.us-west-2.amazonaws.com/todo-flask-app:v7
+          env:
+            - name: MONGO_HOST
+              value: "pod1-service"
+            - name: MONGO_PORT
+              value: "27017"
